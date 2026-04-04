@@ -37,9 +37,9 @@ interface AttendeeTableProps {
 type SortKey = 'last_name' | 'first_name' | 'title' | 'company_name' | 'status' | 'conference_count';
 type SortDir = 'asc' | 'desc';
 
-const STATUS_OPTIONS = ['Client', 'Hot Prospect', 'Interested', 'Not Interested', 'Unknown'];
+const STATUS_OPTIONS_FALLBACK = ['Client', 'Hot Prospect', 'Interested', 'Not Interested', 'Unknown'];
 const CONF_COUNT_OPTIONS = ['1', '2', '3', '4+'];
-const SENIORITY_OPTIONS = ['C-Suite', 'VP Level', 'Director', 'Manager', 'Other'];
+const SENIORITY_OPTIONS_FALLBACK = ['C-Suite', 'VP Level', 'Director', 'Manager', 'Other'];
 const PAGE_SIZE = 100;
 
 function statusBadgeClass(status: string | undefined) {
@@ -127,6 +127,21 @@ export function AttendeeTable({ attendees, onRefresh }: AttendeeTableProps) {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [isApplying, setIsApplying] = useState(false);
   const resizeRef = useRef<{ col: string; startX: number; startW: number } | null>(null);
+  const [statusOptions, setStatusOptions] = useState<string[]>(STATUS_OPTIONS_FALLBACK);
+  const [seniorityOptions, setSeniorityOptions] = useState<string[]>(SENIORITY_OPTIONS_FALLBACK);
+  const [companyTypeOptions, setCompanyTypeOptions] = useState<string[]>([]);
+
+  useEffect(() => {
+    Promise.all([
+      fetch('/api/config?category=status').then(r => r.json()),
+      fetch('/api/config?category=seniority').then(r => r.json()),
+      fetch('/api/config?category=company_type').then(r => r.json()),
+    ]).then(([statusData, seniorityData, companyTypeData]) => {
+      if (statusData.length > 0) setStatusOptions(statusData.map((o: { value: string }) => o.value));
+      if (seniorityData.length > 0) setSeniorityOptions(seniorityData.map((o: { value: string }) => o.value));
+      if (companyTypeData.length > 0) setCompanyTypeOptions(companyTypeData.map((o: { value: string }) => o.value));
+    }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (showMassEdit && companies.length === 0) {
@@ -196,7 +211,8 @@ export function AttendeeTable({ attendees, onRefresh }: AttendeeTableProps) {
 
   const toggleSelect = (id: number) => setSelectedIds(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
   const selectedAttendees = attendees.filter(a => selectedIds.has(a.id));
-  const companyTypes = Array.from(new Set(attendees.map(a => a.company_type).filter(Boolean))) as string[];
+  const dataCompanyTypes = Array.from(new Set(attendees.map(a => a.company_type).filter(Boolean))) as string[];
+  const effectiveCompanyTypes = companyTypeOptions.length > 0 ? companyTypeOptions : dataCompanyTypes;
 
   const handleDeleteOne = async (id: number, name: string) => {
     if (!confirm(`Delete ${name}? This cannot be undone.`)) return;
@@ -249,15 +265,15 @@ export function AttendeeTable({ attendees, onRefresh }: AttendeeTableProps) {
         </div>
         <select value={filterCompanyType} onChange={e => setFilterCompanyType(e.target.value)} className="input-field w-auto">
           <option value="">All Company Types</option>
-          {companyTypes.map(t => <option key={t} value={t}>{t}</option>)}
+          {effectiveCompanyTypes.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
         <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="input-field w-auto">
           <option value="">All Statuses</option>
-          {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+          {statusOptions.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
         <select value={filterSeniority} onChange={e => setFilterSeniority(e.target.value)} className="input-field w-auto">
           <option value="">All Seniorities</option>
-          {SENIORITY_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+          {seniorityOptions.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
 
         {/* # Conferences multiselect */}
@@ -316,7 +332,7 @@ export function AttendeeTable({ attendees, onRefresh }: AttendeeTableProps) {
               <label className="label text-xs">Status</label>
               <select value={massEditFields.status || ''} onChange={e => setMassEditFields(p => ({ ...p, status: e.target.value }))} className="input-field w-40 text-sm">
                 <option value="">— no change —</option>
-                {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                {statusOptions.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             </div>
             <div>
