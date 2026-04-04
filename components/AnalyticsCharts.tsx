@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { classifySeniority } from '@/lib/parsers';
+import { NotesPopover } from '@/components/NotesPopover';
 
 interface Attendee {
   id: number;
@@ -19,6 +20,7 @@ interface Attendee {
   company_id?: number;
   company_type?: string;
   company_name?: string;
+  notes_count?: number;
 }
 
 interface ConferenceDetail {
@@ -310,8 +312,15 @@ export function AnalyticsCharts({ attendees, conferenceDetails }: AnalyticsChart
                         </span>
                       ) : <span className="text-gray-300">—</span>}
                     </td>
-                    <td className="px-4 py-3 text-gray-600 max-w-[200px] truncate">
-                      {detail.notes || detail.next_steps_notes || <span className="text-gray-300">—</span>}
+                    <td className="px-4 py-3">
+                      {Number(attendee.notes_count) > 0 ? (
+                        <NotesPopover
+                          attendeeId={attendee.id}
+                          notesCount={Number(attendee.notes_count)}
+                        />
+                      ) : (
+                        <span className="text-gray-300">—</span>
+                      )}
                     </td>
                   </tr>
                 ))}
