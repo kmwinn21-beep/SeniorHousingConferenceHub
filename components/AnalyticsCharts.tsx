@@ -266,7 +266,7 @@ export function AnalyticsCharts({ attendees, conferenceDetails }: AnalyticsChart
                   formatter={(value: number, name: string) => [value, name]}
                   contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
                 />
-                <Legend className="text-xs" />
+                <Legend   className="text-xs"   wrapperStyle={{ fontSize: '10px' }} />
               </PieChart>
             </ResponsiveContainer>
           )}
@@ -331,7 +331,7 @@ export function AnalyticsCharts({ attendees, conferenceDetails }: AnalyticsChart
                   formatter={(value: number, name: string) => [value, name]}
                   contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
                 />
-                <Legend className="text-xs" />
+                <Legend   className="text-xs"   wrapperStyle={{ fontSize: '10px' }} />
               </PieChart>
             </ResponsiveContainer>
           )}
