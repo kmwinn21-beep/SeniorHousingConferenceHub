@@ -432,11 +432,11 @@ export function AnalyticsCharts({ attendees, conferenceDetails }: AnalyticsChart
       {/* Attendee Activity Table */}
       {activityRows.length > 0 && (
         <div className="card">
-          <h3 className="text-base font-semibold text-procare-dark-blue mb-4 font-serif">
+          <h3 className="text-xs font-semibold text-procare-dark-blue mb-4 font-serif">
             Attendee Activity
           </h3>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto" style={{ maxHeight: 'calc(100vh - 18rem)' }}>
+            <table className="w-full text-xs">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">Name</th>
