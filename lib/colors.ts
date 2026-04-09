@@ -45,7 +45,7 @@ export const COLOR_PRESETS: ColorPreset[] = [
   {
     key: 'green',
     label: 'Green',
-    hex: '#DCFCE7',
+    hex: '#22c55e',
     swatch: '#DCFCE7',
     badgeClass: 'bg-green-100 text-green-700 border border-green-300',
     pillClass: 'bg-green-500/10 text-green-700 border border-green-600/30', // CHANGE THIS
@@ -53,7 +53,7 @@ export const COLOR_PRESETS: ColorPreset[] = [
   {
     key: 'yellow',
     label: 'Yellow',
-    hex: '#FEF9C3',
+    hex: '#FFCB3F',
     swatch: '#eab308',
     badgeClass: 'bg-yellow-100 text-yellow-800 border border-yellow-300',
     pillClass: 'bg-yellow-400 text-yellow-900 border border-yellow-500', // CHANGE THIS
