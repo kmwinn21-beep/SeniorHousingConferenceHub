@@ -227,11 +227,15 @@ export default async function DashboardPage() {
                   <div className="mt-3 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       {conf.attendee_count === 0 ? (
-                        <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-600">
+                        <span
+                          className="inline-flex items-center gap-1 text-xs font-medium text-amber-600"
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                          title="Awaiting Attendee Upload"
+                        >
                           <svg className="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86l-8.58 14.86a1 1 0 00.87 1.5h17.16a1 1 0 00.87-1.5L12.71 3.86a1 1 0 00-1.42 0z" />
                           </svg>
-                          Awaiting Attendee Upload
+                          <span className="hidden sm:inline">Awaiting Attendee Upload</span>
                         </span>
                       ) : (
                         conf.internal_attendees.length > 0 && (
@@ -293,11 +297,15 @@ export default async function DashboardPage() {
                     </div>
                     <div className="flex items-center gap-2 ml-3 flex-shrink-0">
                       {conf.attendee_count === 0 ? (
-                        <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-600">
+                        <span
+                          className="inline-flex items-center gap-1 text-xs font-medium text-amber-600"
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                          title="Awaiting Attendee Upload"
+                        >
                           <svg className="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86l-8.58 14.86a1 1 0 00.87 1.5h17.16a1 1 0 00.87-1.5L12.71 3.86a1 1 0 00-1.42 0z" />
                           </svg>
-                          Awaiting Attendee Upload
+                          <span className="hidden sm:inline">Awaiting Attendee Upload</span>
                         </span>
                       ) : (
                         conf.internal_attendees.length > 0 && (

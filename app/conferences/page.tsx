@@ -380,11 +380,15 @@ export default function ConferencesPage() {
                         </div>
                         <div className="ml-6 flex-shrink-0 text-right">
                           {conf.attendee_count === 0 ? (
-                            <div className="flex flex-col items-center gap-1 px-4 py-2 min-w-[80px]">
+                            <div
+                              className="flex flex-col items-center gap-1 px-4 py-2 min-w-[80px]"
+                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                              title="Awaiting Attendee Upload"
+                            >
                               <svg className="w-7 h-7 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86l-8.58 14.86a1 1 0 00.87 1.5h17.16a1 1 0 00.87-1.5L12.71 3.86a1 1 0 00-1.42 0z" />
                               </svg>
-                              <p className="text-xs text-amber-600 font-medium leading-tight text-center">Awaiting Attendee Upload</p>
+                              <p className="hidden sm:block text-xs text-amber-600 font-medium leading-tight text-center">Awaiting Attendee Upload</p>
                             </div>
                           ) : (
                             <div className="bg-procare-dark-blue text-white rounded-xl px-4 py-2 text-center min-w-[80px]">
