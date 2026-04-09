@@ -48,7 +48,7 @@ export const COLOR_PRESETS: ColorPreset[] = [
     hex: '#DCFCE7',
     swatch: '#DCFCE7',
     badgeClass: 'bg-green-100 text-green-700 border border-green-300',
-    pillClass: 'bg-green-100 text-green-700 border border-green-300', // CHANGE THIS
+    pillClass: 'bg-green-500/10 text-green-700 border border-green-600/30', // CHANGE THIS
   },
   {
     key: 'yellow',
@@ -141,10 +141,10 @@ export function getBadgeClass(value: string | undefined, colorMap: ColorMap): st
 }
 
 /** Get pill class for a value (solid bg, used on detail pages) */
-export function getBadgeClass(value: string | undefined, colorMap: ColorMap): string {
-  if (!value) return `inline-flex px-2 py-0.5 rounded-lg text-xs font-semibold ${FALLBACK.badgeClass}`;
+export function getPillClass(value: string | undefined, colorMap: ColorMap): string {
+  if (!value) return `inline-flex px-2 py-0.5 rounded-lg text-xs font-semibold ${FALLBACK.pillClass}`;
   const preset = getPreset(colorMap[value]);
-  return `inline-flex px-2 py-0.5 rounded-lg text-xs font-semibold ${preset.badgeClass}`;
+  return `inline-flex px-2 py-0.5 rounded-lg text-xs font-semibold ${preset.pillClass}`;
 }
 
 /** Get hex color for a value (used in charts) */
