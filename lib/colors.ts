@@ -144,7 +144,7 @@ export function getBadgeClass(value: string | undefined, colorMap: ColorMap): st
 export function getPillClass(value: string | undefined, colorMap: ColorMap): string {
   if (!value) return `inline-flex px-2 py-0.5 rounded-lg text-xs font-semibold ${FALLBACK.pillClass}`;
   const preset = getPreset(colorMap[value]);
-  return `inline-flex px-2 py-0.5 rounded-lg text-xs font-semibold ${getPreset(colorMap[value]).pillClass};
+  return `inline-flex px-2 py-0.5 rounded-lg text-xs font-semibold ${preset.pillClass}`;
 }
 
 /** Get hex color for a value (used in charts) */
