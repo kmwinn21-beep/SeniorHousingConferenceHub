@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAuth } from '@/lib/auth';
 import { db, dbReady } from '@/lib/db';
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const authResult = await requireAuth(request);
+  if (authResult instanceof NextResponse) return authResult;
   try {
     await dbReady;
     const companyResult = await db.execute({
@@ -61,6 +64,8 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const authResult = await requireAuth(request);
+  if (authResult instanceof NextResponse) return authResult;
   try {
     await dbReady;
     const body = await request.json();
@@ -94,6 +99,8 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const authResult = await requireAuth(request);
+  if (authResult instanceof NextResponse) return authResult;
   try {
     await dbReady;
     const body = await request.json();
@@ -121,9 +128,11 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const authResult = await requireAuth(request);
+  if (authResult instanceof NextResponse) return authResult;
   try {
     await dbReady;
 

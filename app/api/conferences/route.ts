@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAuth } from '@/lib/auth';
 import Fuse from 'fuse.js';
 import { db, dbReady } from '@/lib/db';
 import { parseFile } from '@/lib/parsers';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const authResult = await requireAuth(request);
+  if (authResult instanceof NextResponse) return authResult;
   try {
     await dbReady;
     const result = await db.execute({
@@ -42,6 +45,8 @@ async function batchInsert<T>(
 }
 
 export async function POST(request: NextRequest) {
+  const authResult = await requireAuth(request);
+  if (authResult instanceof NextResponse) return authResult;
   try {
     await dbReady;
     const formData = await request.formData();
