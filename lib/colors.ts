@@ -48,7 +48,7 @@ export const COLOR_PRESETS: ColorPreset[] = [
     hex: '#DCFCE7',
     swatch: '#DCFCE7',
     badgeClass: 'bg-green-100 text-green-700 border border-green-300',
-    pillClass: 'bg-green-500 text-green border border-green-600', // CHANGE THIS
+    pillClass: 'bg-green-100 text-green-700 border border-green-300', // CHANGE THIS
   },
   {
     key: 'yellow',
@@ -72,7 +72,7 @@ export const COLOR_PRESETS: ColorPreset[] = [
     hex: '#7c3aed',
     swatch: '#7c3aed',
     badgeClass: 'bg-purple-100 text-purple-700 border border-purple-300',
-    pillClass: 'bg-purple-500 text-white border border-purple-600', // CHANGE THIS
+    pillClass: 'bg-purple-100 text-purple-700 border border-purple-300', // CHANGE THIS
   },
   {
     key: 'pink',
@@ -142,7 +142,7 @@ export function getBadgeClass(value: string | undefined, colorMap: ColorMap): st
 
 /** Get pill class for a value (solid bg, used on detail pages) */
 export function getPillClass(value: string | undefined, colorMap: ColorMap): string {
-  if (!value) return FALLBACK.pillClass;
+  if (!value) return `inline-flex px-2 py-0.5 rounded-lg text-xs font-semibold ${FALLBACK.pillClass};
   return getPreset(colorMap[value]).pillClass;
 }
 
