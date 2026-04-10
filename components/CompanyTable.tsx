@@ -226,8 +226,7 @@ export function CompanyTable({ companies, onRefresh }: CompanyTableProps) {
       const matchConf = confCountMatches(Number(c.conference_count));
       const matchConference = !filterConference || (c.conference_names || '').split(',').map(s => s.trim()).includes(filterConference);
       const matchICP = !filterICP || c.icp === filterICP;
-      const matchWSE = !wseFilterActive || (c.wse != null && c.wse >= effectiveWseMin && c.wse <= effectiveWseMax);
-      return matchSearch && matchSFOwner && matchType && matchStatus && matchConf && matchConference && matchICP && matchWSE;
+      return matchSearch && matchSFOwner && matchType && matchStatus && matchConf && matchConference && matchICP;
     });
     list.sort((a, b) => {
       let aVal: string | number, bVal: string | number;
