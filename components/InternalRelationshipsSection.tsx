@@ -261,9 +261,18 @@ function RelationshipCard({
   return (
     <div className="border border-gray-200 rounded-lg overflow-hidden">
       {/* Collapsed header — always visible */}
-      <button
+      <div
         onClick={() => setExpanded(v => !v)}
-        className="w-full p-3 hover:bg-gray-50 transition-colors text-left"
+        onKeyDown={e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setExpanded(v => !v);
+          }
+        }}
+        className="w-full p-3 hover:bg-gray-50 transition-colors text-left cursor-pointer"
+        role="button"
+        tabIndex={0}
+        aria-expanded={expanded}
       >
         {/* Top row: Contact name/title + expand chevron */}
         <div className="flex items-start justify-between">
@@ -296,7 +305,7 @@ function RelationshipCard({
             ))}
           </div>
         )}
-      </button>
+      </div>
 
       {/* Expanded content — relationship status pills + notes */}
       {expanded && (
