@@ -1,39 +1,22 @@
-import React, { useState } from 'react';
-import { RepPill } from './RepPill';
+import React from 'react';
+import { useState } from 'react';
 
-//... other imports
+const InternalRelationshipsSection = () => {
+  // Original logic ...
+  const [collapsed, setCollapsed] = useState(true);
 
-const RelationshipCard = () => {
-  const [expanded, setExpanded] = useState(false);
-
-  const toggleExpanded = (event) => {
-    // Prevent default action for Enter/Space keys
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-    }
-    setExpanded(!expanded);
+  const toggleCollapse = () => {
+    setCollapsed(!collapsed);
   };
 
   return (
     <div>
-      <div
-        role="button"
-        tabIndex={0}
-        className={`header-wrapper cursor-pointer ${/* existing classes */}`}
-        onClick={toggleExpanded}
-        onKeyDown={toggleExpanded}
-      >
-        {/* Existing inner markup (contacts text and RepPill) */}
-        <span>Contacts Text</span>
-        <RepPill />
+      <div role="button" tabIndex={0} className="cursor-pointer" onClick={toggleCollapse} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggleCollapse(); }}>
+        Relationship Header
       </div>
-      {expanded && (
-        <div>
-          {/* Expanded content goes here */}
-        </div>
-      )}
+      {!collapsed && <div>Relationship Details...</div>}
     </div>
   );
 };
 
-export default RelationshipCard;
+export default InternalRelationshipsSection;
