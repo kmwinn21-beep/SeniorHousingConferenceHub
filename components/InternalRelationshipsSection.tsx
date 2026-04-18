@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
+import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { RepMultiSelect } from './RepMultiSelect';
 import type { UserOption } from '@/lib/useUserOptions';
@@ -31,10 +32,17 @@ interface AttendeeOption {
 }
 
 /** Name/title display for contacts on relationship cards */
-function ContactInitialsDisplay({ firstName, lastName, title }: { firstName: string; lastName: string; title?: string }) {
+function ContactInitialsDisplay({ attendeeId, firstName, lastName, title }: { attendeeId?: number; firstName: string; lastName: string; title?: string }) {
+  const name = `${firstName} ${lastName}`;
   return (
     <div className="min-w-0">
-      <span className="text-sm font-medium text-gray-800 leading-tight block">{firstName} {lastName}</span>
+      {attendeeId ? (
+        <Link href={`/attendees/${attendeeId}`} className="text-sm font-medium text-procare-bright-blue hover:underline leading-tight block">
+          {name}
+        </Link>
+      ) : (
+        <span className="text-sm font-medium text-gray-800 leading-tight block">{name}</span>
+      )}
       {title && <span className="text-xs text-gray-500 leading-tight block">{title}</span>}
     </div>
   );
@@ -261,10 +269,7 @@ function RelationshipCard({
   return (
     <div className="border border-gray-200 rounded-lg overflow-hidden">
       {/* Collapsed header — always visible */}
-      <button
-        onClick={() => setExpanded(v => !v)}
-        className="w-full p-3 hover:bg-gray-50 transition-colors text-left"
-      >
+      <div className="w-full p-3 hover:bg-gray-50 transition-colors text-left">
         {/* Top row: Contact name/title + expand chevron */}
         <div className="flex items-start justify-between">
           <div className="min-w-0 flex-1">
@@ -273,6 +278,7 @@ function RelationshipCard({
                 {contacts.map(att => (
                   <ContactInitialsDisplay
                     key={att.id}
+                    attendeeId={att.id}
                     firstName={att.first_name}
                     lastName={att.last_name}
                     title={att.title}
@@ -283,9 +289,16 @@ function RelationshipCard({
               <span className="text-sm text-gray-400">No contact</span>
             )}
           </div>
-          <svg className={`w-4 h-4 text-gray-400 transition-transform flex-shrink-0 ml-2 ${expanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
+          <button
+            type="button"
+            onClick={() => setExpanded(v => !v)}
+            className="p-1 rounded hover:bg-gray-100 transition-colors flex-shrink-0 ml-2"
+            aria-label={expanded ? 'Collapse relationship details' : 'Expand relationship details'}
+          >
+            <svg className={`w-4 h-4 text-gray-400 transition-transform ${expanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
         </div>
 
         {/* Bottom row: User pills */}
@@ -296,7 +309,7 @@ function RelationshipCard({
             ))}
           </div>
         )}
-      </button>
+      </div>
 
       {/* Expanded content — relationship status pills + notes */}
       {expanded && (
@@ -571,8 +584,8 @@ export function InternalRelationshipModal({
     if (!isOpen) return;
     setIsLoading(true);
     Promise.all([
-      fetch('/api/config?category=user').then(r => r.json()),
-      fetch('/api/config?category=rep_relationship_type').then(r => r.json()),
+      fetch('/api/config?category=user&form=relationships_page').then(r => r.json()),
+      fetch('/api/config?category=rep_relationship_type&form=relationships_page').then(r => r.json()),
       ...(entityType === 'company'
         ? entityIds.map(id => fetch(`/api/companies/${id}`).then(r => r.json()))
         : entityIds.map(id => fetch(`/api/attendees/${id}`).then(r => r.json()))
