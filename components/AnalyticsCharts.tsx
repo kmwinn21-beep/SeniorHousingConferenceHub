@@ -275,7 +275,7 @@ export function AnalyticsCharts({ attendees, conferenceDetails, conferenceName, 
         <div className="card">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-semibold text-procare-dark-blue font-serif">
-              Company Type Breakdown
+              Company Type Summary
             </h3>
             <button
               type="button"
