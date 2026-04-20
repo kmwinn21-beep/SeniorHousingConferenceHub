@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { BackButton } from '@/components/BackButton';
 import { MultiSelectDropdown } from '@/components/MultiSelectDropdown';
+import { useUser } from '@/components/UserContext';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Conference {
@@ -81,6 +82,14 @@ function confDatesInMonth(confs: Conference[], y: number, m: number): Set<string
   return set;
 }
 
+function normalizeAttendeeToken(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .replace(/^@+/, '');
+}
+
 // ─── Sub-components ───────────────────────────────────────────────────────────
 function ConferenceCard({ conf }: { conf: Conference }) {
   return (
@@ -143,6 +152,7 @@ function ConferenceCard({ conf }: { conf: Conference }) {
 
 function MonthCalendar({ year, month, dates, selected, onPick, today }: {
   year: number; month: number; dates: Set<string>;
+  scheduledDates: Set<string>;
   selected: string | null; onPick: (d: string) => void; today: string;
 }) {
   const fdow = new Date(year, month, 1).getDay();
@@ -165,6 +175,7 @@ function MonthCalendar({ year, month, dates, selected, onPick, today }: {
           if (day === null) return <div key={`e-${i}`} />;
           const ds = buildDS(year, month, day);
           const isConf = dates.has(ds), isSel = selected === ds, isToday = ds === today;
+          const isScheduled = scheduledDates.has(ds);
           return (
             <div key={ds} className="flex items-center justify-center py-0.5">
               <button
@@ -174,7 +185,8 @@ function MonthCalendar({ year, month, dates, selected, onPick, today }: {
                 className={[
                   'w-7 h-7 rounded-full text-xs font-medium transition-colors flex items-center justify-center select-none',
                   isSel   ? 'bg-procare-dark-blue text-white' :
-                  isConf  ? 'bg-procare-bright-blue/20 text-procare-dark-blue hover:bg-procare-bright-blue hover:text-white cursor-pointer' :
+                  isScheduled ? 'bg-procare-bright-blue/20 text-procare-dark-blue ring-1 ring-procare-bright-blue hover:bg-procare-bright-blue hover:text-white cursor-pointer' :
+                  isConf  ? 'bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer' :
                   isToday ? 'border border-procare-bright-blue text-procare-bright-blue cursor-default' :
                             'text-gray-500 cursor-default',
                 ].join(' ')}
@@ -189,6 +201,7 @@ function MonthCalendar({ year, month, dates, selected, onPick, today }: {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function ConferencesPage() {
+  const { user } = useUser();
   const now          = new Date();
   const todayStr     = now.toISOString().slice(0, 10);
   const currentYear  = now.getFullYear();
@@ -316,6 +329,30 @@ export default function ConferencesPage() {
   // Calendar date highlight sets (use ALL conferences for visual)
   const calDateSets = useMemo(() => calMonths.map(([y, m]) => confDatesInMonth(conferences, y, m)), [calMonths, conferences]);
 
+  const userScheduleDateSets = useMemo(() => {
+    const aliases = [
+      user?.displayName,
+      user?.repName,
+      user?.email ? user.email.split('@')[0] : null,
+    ]
+      .filter(Boolean)
+      .map((v) => normalizeAttendeeToken(String(v)));
+
+    if (!aliases.length) {
+      return calMonths.map(() => new Set<string>());
+    }
+
+    const userConferences = conferences.filter((conference) => {
+      const attendees = (conference.internal_attendees || '')
+        .split(',')
+        .map(normalizeAttendeeToken)
+        .filter(Boolean);
+      return attendees.some((attendee) => aliases.includes(attendee));
+    });
+
+    return calMonths.map(([y, m]) => confDatesInMonth(userConferences, y, m));
+  }, [calMonths, conferences, user?.displayName, user?.email, user?.repName]);
+
   const hasFilters = !!(filterYear || filterMonth || filterCity || filterState ||
     filterDateFrom || filterDateTo || filterInternalAttendees.length || selectedDate);
 
@@ -377,6 +414,9 @@ export default function ConferencesPage() {
               </button>
             )}
           </div>
+          <p className="text-xs text-gray-500">
+            Days outlined in the accent color are conferences assigned to you.
+          </p>
 
           {calExpanded && (
             <div className="flex items-start gap-1 mt-3">
@@ -400,6 +440,7 @@ export default function ConferencesPage() {
                     <MonthCalendar
                       year={y} month={m}
                       dates={calDateSets[idx]}
+                      scheduledDates={userScheduleDateSets[idx]}
                       selected={selectedDate}
                       onPick={handleDatePick}
                       today={todayStr}
