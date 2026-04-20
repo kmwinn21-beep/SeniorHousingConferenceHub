@@ -150,7 +150,7 @@ function ConferenceCard({ conf }: { conf: Conference }) {
   );
 }
 
-function MonthCalendar({ year, month, dates, selected, onPick, today }: {
+function MonthCalendar({ year, month, dates, scheduledDates, selected, onPick, today }: {
   year: number; month: number; dates: Set<string>;
   scheduledDates: Set<string>;
   selected: string | null; onPick: (d: string) => void; today: string;
