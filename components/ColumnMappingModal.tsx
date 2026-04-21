@@ -124,7 +124,7 @@ export function ColumnMappingModal({
               disabled={!hasName}
               className="btn-primary text-sm"
             >
-              Confirm &amp; Upload
+              {mapping.assigned_user ? 'Confirm Assigned User Map →' : 'Confirm & Upload'}
             </button>
           </div>
         </div>

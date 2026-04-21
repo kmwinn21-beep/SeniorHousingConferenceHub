@@ -24,8 +24,7 @@ import { RepMultiSelect } from '@/components/RepMultiSelect';
 import { type UserOption, getRepInitials } from '@/lib/useUserOptions';
 import { ColumnMappingModal } from '@/components/ColumnMappingModal';
 import { AssignedUserConfirmModal } from '@/components/AssignedUserConfirmModal';
-import { type ColumnMapping } from '@/lib/columnMapping';
-import { type UserResolutionEntry } from '@/app/api/upload-preview/unique-values/route';
+import { type ColumnMapping, type UserResolutionEntry } from '@/lib/columnMapping';
 
 interface Attendee {
   id: number;
@@ -768,11 +767,14 @@ export default function ConferenceDetailPage() {
 
   const handleConfirmMapping = async (mapping: ColumnMapping) => {
     if (!pendingUploadFile) return;
+    const savedTotalRows = columnMappingData?.totalRows ?? 0;
     setColumnMappingData(null);
 
     // If the assigned_user column is mapped, show the user-resolution confirmation step
     if (mapping.assigned_user) {
       setIsUploading(true);
+      let entries: UserResolutionEntry[] = [];
+      let userOptions: { id: number; value: string }[] = [];
       try {
         const fd = new FormData();
         fd.append('file', pendingUploadFile);
@@ -780,14 +782,16 @@ export default function ConferenceDetailPage() {
         const res = await fetch('/api/upload-preview/unique-values', { method: 'POST', body: fd });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed to resolve user values');
-        setPendingMapping(mapping);
-        setUserResolutionData({ ...data, totalRows: columnMappingData?.totalRows ?? 0 });
+        entries = data.entries ?? [];
+        userOptions = data.userOptions ?? [];
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : 'Failed to read assigned users');
-        setPendingUploadFile(null);
+        toast.error(err instanceof Error ? err.message : 'Failed to auto-resolve assigned users — please map manually below.');
       } finally {
         setIsUploading(false);
       }
+      // Always show the confirmation modal so the user can manually assign if auto-resolve failed
+      setPendingMapping(mapping);
+      setUserResolutionData({ entries, userOptions, totalRows: savedTotalRows });
       return;
     }
 

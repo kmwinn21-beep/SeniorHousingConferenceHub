@@ -46,3 +46,10 @@ export const FIELD_ORDER: SystemFieldKey[] = [
   'first_name', 'last_name', 'full_name', 'title', 'company',
   'email', 'website', 'company_type', 'assigned_user', 'wse', 'services', 'icp',
 ];
+
+/** A single unique CSV value for the Assigned User column with its resolved config_options ID */
+export interface UserResolutionEntry {
+  raw: string;
+  resolved_id: number | null;
+  resolved_display: string | null;
+}

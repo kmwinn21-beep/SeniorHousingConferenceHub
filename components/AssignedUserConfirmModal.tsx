@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { UserResolutionEntry } from '@/app/api/upload-preview/unique-values/route';
+import type { UserResolutionEntry } from '@/lib/columnMapping';
 
 interface UserOption {
   id: number;

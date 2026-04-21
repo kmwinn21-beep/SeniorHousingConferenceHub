@@ -2,12 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth';
 import { db, dbReady } from '@/lib/db';
 import { extractRawRows } from '@/lib/parsers';
-
-export interface UserResolutionEntry {
-  raw: string;
-  resolved_id: number | null;
-  resolved_display: string | null;
-}
+import type { UserResolutionEntry } from '@/lib/columnMapping';
 
 export async function POST(request: NextRequest) {
   const authResult = await requireAuth(request);
