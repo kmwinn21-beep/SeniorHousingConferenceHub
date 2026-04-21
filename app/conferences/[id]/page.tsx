@@ -23,7 +23,9 @@ import { getBadgeClass, getHex, type ColorMap } from '@/lib/colors';
 import { RepMultiSelect } from '@/components/RepMultiSelect';
 import { type UserOption, getRepInitials } from '@/lib/useUserOptions';
 import { ColumnMappingModal } from '@/components/ColumnMappingModal';
+import { AssignedUserConfirmModal } from '@/components/AssignedUserConfirmModal';
 import { type ColumnMapping } from '@/lib/columnMapping';
+import { type UserResolutionEntry } from '@/app/api/upload-preview/unique-values/route';
 
 interface Attendee {
   id: number;
@@ -319,6 +321,12 @@ export default function ConferenceDetailPage() {
     headers: string[];
     suggestions: ColumnMapping;
     sampleRows: Record<string, string>[];
+    totalRows: number;
+  } | null>(null);
+  const [pendingMapping, setPendingMapping] = useState<ColumnMapping | null>(null);
+  const [userResolutionData, setUserResolutionData] = useState<{
+    entries: UserResolutionEntry[];
+    userOptions: { id: number; value: string }[];
     totalRows: number;
   } | null>(null);
 
@@ -761,11 +769,66 @@ export default function ConferenceDetailPage() {
   const handleConfirmMapping = async (mapping: ColumnMapping) => {
     if (!pendingUploadFile) return;
     setColumnMappingData(null);
+
+    // If the assigned_user column is mapped, show the user-resolution confirmation step
+    if (mapping.assigned_user) {
+      setIsUploading(true);
+      try {
+        const fd = new FormData();
+        fd.append('file', pendingUploadFile);
+        fd.append('column', mapping.assigned_user);
+        const res = await fetch('/api/upload-preview/unique-values', { method: 'POST', body: fd });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to resolve user values');
+        setPendingMapping(mapping);
+        setUserResolutionData({ ...data, totalRows: columnMappingData?.totalRows ?? 0 });
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : 'Failed to read assigned users');
+        setPendingUploadFile(null);
+      } finally {
+        setIsUploading(false);
+      }
+      return;
+    }
+
+    // No assigned_user mapped — proceed directly to upload
+    await doUpload(mapping, null);
+  };
+
+  const handleUserResolutionConfirm = async (resolutions: Record<string, number | null>) => {
+    const mapping = pendingMapping;
+    setUserResolutionData(null);
+    setPendingMapping(null);
+    if (!mapping) return;
+    await doUpload(mapping, resolutions);
+  };
+
+  const handleUserResolutionBack = () => {
+    // Return to the column mapping step
+    setUserResolutionData(null);
+    setPendingMapping(null);
+    // Re-show the mapping modal with the same file data
+    // (columnMappingData was cleared — re-fetch it)
+    if (pendingUploadFile) {
+      setIsUploading(true);
+      const fd = new FormData();
+      fd.append('file', pendingUploadFile);
+      fetch('/api/upload-preview', { method: 'POST', body: fd })
+        .then(r => r.json())
+        .then(data => { setColumnMappingData(data); })
+        .catch(() => { toast.error('Failed to reload file preview'); setPendingUploadFile(null); })
+        .finally(() => setIsUploading(false));
+    }
+  };
+
+  const doUpload = async (mapping: ColumnMapping, userResolutions: Record<string, number | null> | null) => {
+    if (!pendingUploadFile) return;
     setIsUploading(true);
     try {
       const formData = new FormData();
       formData.append('file', pendingUploadFile);
       formData.append('mapping', JSON.stringify(mapping));
+      if (userResolutions) formData.append('user_resolutions', JSON.stringify(userResolutions));
       const res = await fetch(`/api/conferences/${id}/attendees/upload`, { method: 'POST', body: formData });
       const result = await res.json();
       if (!res.ok) throw new Error(result.error || 'Failed to upload attendees');
@@ -841,6 +904,19 @@ export default function ConferenceDetailPage() {
           sampleRows={columnMappingData.sampleRows}
           onConfirm={handleConfirmMapping}
           onCancel={() => { setColumnMappingData(null); setPendingUploadFile(null); }}
+        />
+      )}
+
+      {/* Assigned user confirmation modal */}
+      {userResolutionData && pendingUploadFile && (
+        <AssignedUserConfirmModal
+          fileName={pendingUploadFile.name}
+          totalRows={userResolutionData.totalRows}
+          entries={userResolutionData.entries}
+          userOptions={userResolutionData.userOptions}
+          onConfirm={handleUserResolutionConfirm}
+          onBack={handleUserResolutionBack}
+          onCancel={() => { setUserResolutionData(null); setPendingMapping(null); setPendingUploadFile(null); }}
         />
       )}
 

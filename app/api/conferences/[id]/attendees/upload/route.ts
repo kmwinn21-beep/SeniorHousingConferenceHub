@@ -97,10 +97,16 @@ export async function POST(
     }
 
     // Resolve a name/ID string from the file to the stored numeric ID string.
+    // If a pre-confirmed resolution map was provided (from AssignedUserConfirmModal), use it first.
     // Returns null if the value is blank or doesn't match any known user.
     const resolveUserId = (raw: string | undefined): string | null => {
       if (!raw?.trim()) return null;
       const trimmed = raw.trim();
+      // Use the pre-confirmed resolution if available
+      if (userResolutions && trimmed in userResolutions) {
+        const id = userResolutions[trimmed];
+        return id != null ? String(id) : null;
+      }
       // Already a numeric ID that exists in the user list → keep as-is
       const num = parseInt(trimmed, 10);
       if (!isNaN(num) && userOptions.some(u => u.id === num)) return String(num);
@@ -121,6 +127,12 @@ export async function POST(
 
     const mappingJson = formData.get('mapping') as string | null;
     const mapping: ColumnMapping | null = mappingJson ? JSON.parse(mappingJson) as ColumnMapping : null;
+
+    // Pre-confirmed user resolutions from the AssignedUserConfirmModal (raw CSV value → config_options.id)
+    const userResolutionsJson = formData.get('user_resolutions') as string | null;
+    const userResolutions: Record<string, number | null> | null = userResolutionsJson
+      ? JSON.parse(userResolutionsJson) as Record<string, number | null>
+      : null;
 
     const buffer = Buffer.from(await file.arrayBuffer());
     const parsed = mapping
