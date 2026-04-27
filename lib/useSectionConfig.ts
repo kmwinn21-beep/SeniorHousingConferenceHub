@@ -31,6 +31,23 @@ export const SECTION_DEFS: Record<string, SectionDef[]> = {
     { key: 'notes', label: 'Notes' },
     { key: 'forms', label: 'Conference Forms' },
   ],
+  pre_conference_review: [
+    { key: 'landscape', label: 'Landscape' },
+    { key: 'icp', label: 'ICP Companies' },
+    { key: 'meetings', label: 'Meetings' },
+    { key: 'social', label: 'Social Events' },
+    { key: 'by-rep', label: 'By Rep' },
+    { key: 'relationships', label: 'Relationships' },
+    { key: 'conference_targets', label: 'Conference Targets' },
+  ],
+  post_conference_review: [
+    { key: 'summary', label: 'Summary' },
+    { key: 'contacts', label: 'Contacts Captured' },
+    { key: 'meetings', label: 'Meetings' },
+    { key: 'follow_ups', label: 'Follow-ups' },
+    { key: 'events_touchpoints', label: 'Events & Touchpoints' },
+    { key: 'action_items', label: 'Action Items' },
+  ],
 };
 
 interface SectionConfig {
